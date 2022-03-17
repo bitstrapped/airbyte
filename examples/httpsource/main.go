@@ -1,9 +1,10 @@
 package main
 
 import (
-	"bitstrapped/airbyte"
-	"bitstrapped/airbyte/examples/httpsource/apisource"
 	"log"
+
+	"github.com/bitstrapped/airbyte"
+	"github.com/bitstrapped/airbyte/examples/httpsource/apisource"
 )
 
 func main() {

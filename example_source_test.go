@@ -1,13 +1,14 @@
 package airbyte_test
 
 import (
-	"bitstrapped/airbyte"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/bitstrapped/airbyte"
 )
 
 type HTTPSource struct {

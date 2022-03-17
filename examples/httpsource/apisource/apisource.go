@@ -1,12 +1,13 @@
 package apisource
 
 import (
-	"bitstrapped/airbyte"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/bitstrapped/airbyte"
 )
 
 type APISource struct {

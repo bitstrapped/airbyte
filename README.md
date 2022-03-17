@@ -11,6 +11,7 @@ go get github.com/bitstrapped/airbyte
 
 ## Docs
 
+- View the godoc's here: https://pkg.go.dev/github.com/bitstrapped/airbyte
 
 
 ## Usage 

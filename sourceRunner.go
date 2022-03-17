@@ -56,7 +56,7 @@ func (sr SourceRunner) Start() error {
 		})
 
 	case cmdCheck:
-		inP, err := getCatalogPath()
+		inP, err := getSourceConfigPath()
 		if err != nil {
 			return err
 		}

@@ -23,6 +23,7 @@ func (sw *safeWriter) Write(p []byte) (int, error) {
 }
 
 func (sw *safeWriter) Close() error {
+	sw.mu.Lock()
 	defer sw.mu.Unlock()
 	return sw.w.Close()
 }

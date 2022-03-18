@@ -1,7 +1,6 @@
 package airbyte
 
 import (
-	"bufio"
 	"io"
 	"sync"
 )
@@ -13,7 +12,7 @@ type safeWriter struct {
 
 func newSafeWriter(w io.Writer) io.Writer {
 	return &safeWriter{
-		w: bufio.NewWriter(w),
+		w: w,
 	}
 }
 

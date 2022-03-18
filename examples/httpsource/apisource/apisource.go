@@ -28,8 +28,8 @@ func NewAPISource(baseURL string) airbyte.Source {
 	}
 }
 
-func (h APISource) GetSpec(logTracker airbyte.LogTracker) (*airbyte.ConnectorSpecification, error) {
-	logTracker.Log(airbyte.LogLevelInfo, "Running GetSpec")
+func (h APISource) Spec(logTracker airbyte.LogTracker) (*airbyte.ConnectorSpecification, error) {
+	logTracker.Log(airbyte.LogLevelInfo, "Running Spec")
 	return &airbyte.ConnectorSpecification{
 		DocumentationURL:      "https://bitstrapped.com",
 		ChangeLogURL:          "https://bitstrapped.com",
@@ -61,7 +61,7 @@ func (h APISource) GetSpec(logTracker airbyte.LogTracker) (*airbyte.ConnectorSpe
 	}, nil
 }
 
-func (h APISource) Validate(srcCfgPath string, logTracker airbyte.LogTracker) error {
+func (h APISource) Check(srcCfgPath string, logTracker airbyte.LogTracker) error {
 	logTracker.Log(airbyte.LogLevelDebug, "validating api connection")
 	var srcCfg HTTPConfig
 	err := airbyte.UnmarshalFromPath(srcCfgPath, &srcCfg)
@@ -81,7 +81,7 @@ func (h APISource) Validate(srcCfgPath string, logTracker airbyte.LogTracker) er
 	return nil
 }
 
-func (h APISource) GetCatalog(srcCfgPath string, logTracker airbyte.LogTracker) (*airbyte.Catalog, error) {
+func (h APISource) Discover(srcCfgPath string, logTracker airbyte.LogTracker) (*airbyte.Catalog, error) {
 	var srcCfg HTTPConfig
 	err := airbyte.UnmarshalFromPath(srcCfgPath, &srcCfg)
 	if err != nil {

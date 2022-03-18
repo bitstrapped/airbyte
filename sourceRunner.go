@@ -43,7 +43,7 @@ func NewSourceRunner(src Source) SourceRunner {
 func (sr SourceRunner) Start() error {
 	switch cmd(os.Args[1]) {
 	case cmdSpec:
-		spec, err := sr.src.GetSpec(LogTracker{
+		spec, err := sr.src.Spec(LogTracker{
 			Log: sr.msgTracker.Log,
 		})
 		if err != nil {
@@ -60,7 +60,7 @@ func (sr SourceRunner) Start() error {
 		if err != nil {
 			return err
 		}
-		err = sr.src.Validate(inP, LogTracker{
+		err = sr.src.Check(inP, LogTracker{
 			Log: sr.msgTracker.Log,
 		})
 		if err != nil {
@@ -85,7 +85,7 @@ func (sr SourceRunner) Start() error {
 		if err != nil {
 			return err
 		}
-		ct, err := sr.src.GetCatalog(inP, LogTracker{
+		ct, err := sr.src.Discover(inP, LogTracker{
 			Log: sr.msgTracker.Log},
 		)
 		if err != nil {

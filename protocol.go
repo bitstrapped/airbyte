@@ -254,7 +254,7 @@ type StateWriter func(v interface{}) error
 // RecordWriter is exported for documentation purposes - only use this through MessageTracker
 type RecordWriter func(v interface{}, streamName string, namespace string) error
 
-func newLogWriter(w io.WriteCloser) LogWriter {
+func newLogWriter(w io.Writer) LogWriter {
 	return func(lvl LogLevel, s string) error {
 		return write(w, &message{
 			Type: msgTypeLog,
@@ -266,7 +266,7 @@ func newLogWriter(w io.WriteCloser) LogWriter {
 	}
 
 }
-func newStateWriter(w io.WriteCloser) StateWriter {
+func newStateWriter(w io.Writer) StateWriter {
 	return func(s interface{}) error {
 		return write(w, &message{
 			Type: msgTypeState,
@@ -277,7 +277,7 @@ func newStateWriter(w io.WriteCloser) StateWriter {
 	}
 }
 
-func newRecordWriter(w io.WriteCloser) RecordWriter {
+func newRecordWriter(w io.Writer) RecordWriter {
 	return func(s interface{}, stream string, namespace string) error {
 		return write(w, &message{
 			Type: msgTypeRecord,

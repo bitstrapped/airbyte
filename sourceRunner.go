@@ -8,14 +8,14 @@ import (
 
 // SourceRunner acts as an "orchestrator" of sorts to run your source for you
 type SourceRunner struct {
-	w          io.WriteCloser
+	w          io.Writer
 	src        Source
 	msgTracker MessageTracker
 }
 
 // NewSourceRunner takes your defined Source and plugs it in with the rest of airbyte
-func NewSourceRunner(src Source) SourceRunner {
-	w := newSafeWriteCloser(os.Stdout)
+func NewSourceRunner(src Source, w io.Writer) SourceRunner {
+	w = newSafeWriter(w)
 	msgTracker := MessageTracker{
 		Record: newRecordWriter(w),
 		State:  newStateWriter(w),

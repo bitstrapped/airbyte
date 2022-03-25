@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/bitstrapped/airbyte"
@@ -216,7 +217,7 @@ func (h HTTPSource) Read(sourceCfgPath string, prevStatePath string, configuredC
 
 func Example() {
 	hsrc := NewHTTPSource("https://api.bitstrapped.com")
-	runner := airbyte.NewSourceRunner(hsrc)
+	runner := airbyte.NewSourceRunner(hsrc, os.Stdout)
 	err := runner.Start()
 	if err != nil {
 		log.Fatal(err)

@@ -29,7 +29,9 @@ func NewAPISource(baseURL string) airbyte.Source {
 }
 
 func (h APISource) Spec(logTracker airbyte.LogTracker) (*airbyte.ConnectorSpecification, error) {
-	logTracker.Log(airbyte.LogLevelInfo, "Running Spec")
+	if err := logTracker.Log(airbyte.LogLevelInfo, "Running Spec"); err != nil {
+		return nil, err
+	}
 	return &airbyte.ConnectorSpecification{
 		DocumentationURL:      "https://bitstrapped.com",
 		ChangeLogURL:          "https://bitstrapped.com",
@@ -62,7 +64,9 @@ func (h APISource) Spec(logTracker airbyte.LogTracker) (*airbyte.ConnectorSpecif
 }
 
 func (h APISource) Check(srcCfgPath string, logTracker airbyte.LogTracker) error {
-	logTracker.Log(airbyte.LogLevelDebug, "validating api connection")
+	if err := logTracker.Log(airbyte.LogLevelDebug, "validating api connection"); err != nil {
+		return err
+	}
 	var srcCfg HTTPConfig
 	err := airbyte.UnmarshalFromPath(srcCfgPath, &srcCfg)
 	if err != nil {
@@ -77,8 +81,8 @@ func (h APISource) Check(srcCfgPath string, logTracker airbyte.LogTracker) error
 	if resp.StatusCode != http.StatusOK {
 		return errors.New("invalid status")
 	}
-
-	return nil
+	
+	return resp.Body.Close()
 }
 
 func (h APISource) Discover(srcCfgPath string, logTracker airbyte.LogTracker) (*airbyte.Catalog, error) {
@@ -151,7 +155,9 @@ type Payment struct {
 
 func (h APISource) Read(sourceCfgPath string, prevStatePath string, configuredCat *airbyte.ConfiguredCatalog,
 	tracker airbyte.MessageTracker) error {
-	tracker.Log(airbyte.LogLevelInfo, "Running read")
+	if err := tracker.Log(airbyte.LogLevelInfo, "Running read"); err != nil {
+		return err
+	}
 	var src HTTPConfig
 	err := airbyte.UnmarshalFromPath(sourceCfgPath, &src)
 	if err != nil {
@@ -160,7 +166,7 @@ func (h APISource) Read(sourceCfgPath string, prevStatePath string, configuredCa
 
 	// see if there is a last sync
 	var st LastSyncTime
-	airbyte.UnmarshalFromPath(sourceCfgPath, &st)
+	_ = airbyte.UnmarshalFromPath(sourceCfgPath, &st)
 	if st.Timestamp <= 0 {
 		st.Timestamp = -1
 	}
@@ -169,12 +175,7 @@ func (h APISource) Read(sourceCfgPath string, prevStatePath string, configuredCa
 		if stream.Stream.Name == "users" {
 			var u []User
 			uri := fmt.Sprintf("https://api.bistrapped.com/users?apiKey=%s", src.APIKey)
-			resp, err := http.Get(uri)
-			if err != nil {
-				return err
-			}
-			err = json.NewDecoder(resp.Body).Decode(&u)
-			if err != nil {
+			if err := httpGet(uri, &u); err != nil {
 				return err
 			}
 
@@ -189,12 +190,7 @@ func (h APISource) Read(sourceCfgPath string, prevStatePath string, configuredCa
 		if stream.Stream.Name == "payments" {
 			var p []Payment
 			uri := fmt.Sprintf("%s/payments?apiKey=%s", h.baseURL, src.APIKey)
-			resp, err := http.Get(uri)
-			if err != nil {
-				return err
-			}
-			err = json.NewDecoder(resp.Body).Decode(&p)
-			if err != nil {
+			if err := httpGet(uri, &p); err != nil {
 				return err
 			}
 
@@ -207,8 +203,16 @@ func (h APISource) Read(sourceCfgPath string, prevStatePath string, configuredCa
 		}
 	}
 
-	tracker.State(&LastSyncTime{
+	return tracker.State(&LastSyncTime{
 		Timestamp: time.Now().UnixMilli(),
 	})
-	return nil
+}
+
+func httpGet(uri string, v interface{}) error {
+	resp, err := http.Get(uri)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	return json.NewDecoder(resp.Body).Decode(v)
 }

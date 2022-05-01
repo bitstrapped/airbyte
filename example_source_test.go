@@ -115,23 +115,8 @@ func (h HTTPSource) Discover(srcCfgPath string, logTracker airbyte.LogTracker) (
 		Namespace:           "bitstrapped",
 	},
 		{
-			Name: "payments",
-			JSONSchema: airbyte.Properties{
-				Properties: map[airbyte.PropertyName]airbyte.PropertySpec{
-					"userid": {
-						PropertyType: airbyte.PropertyType{
-							Type:        []airbyte.PropType{airbyte.Integer, airbyte.Null},
-							AirbyteType: airbyte.BigInteger},
-						Description: "user ID - see the big int",
-					},
-					"paymentAmount": {
-						PropertyType: airbyte.PropertyType{
-							Type: []airbyte.PropType{airbyte.Integer, airbyte.Null},
-						},
-						Description: "payment amount",
-					},
-				},
-			},
+			Name:       "payments",
+			JSONSchema: airbyte.InferSchemaFromStruct(Payment{}, logTracker),
 			SupportedSyncModes: []airbyte.SyncMode{
 				airbyte.SyncModeFullRefresh,
 			},

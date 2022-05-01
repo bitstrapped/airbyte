@@ -239,9 +239,10 @@ type PropertyType struct {
 type PropertySpec struct {
 	Description  string `json:"description"`
 	PropertyType `json:",omitempty"`
-	Examples     []string               `json:"examples,omitempty"`
-	Items        map[string]interface{} `json:"items,omitempty"`
-	IsSecret     bool                   `json:"airbyte_secret,omitempty"`
+	Examples     []string                      `json:"examples,omitempty"`
+	Items        map[string]interface{}        `json:"items,omitempty"`
+	Properties   map[PropertyName]PropertySpec `json:"properties,omitempty"`
+	IsSecret     bool                          `json:"airbyte_secret,omitempty"`
 }
 
 // LogWriter is exported for documentation purposes - only use this through LogTracker or MessageTracker

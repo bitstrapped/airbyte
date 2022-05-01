@@ -13,19 +13,19 @@ func InferSchemaFromStruct(i interface{}, logTracker LogTracker) Properties {
 
 	s, err := schema.Generate(reflect.TypeOf(i))
 	if err != nil {
-		logTracker.Log(LogLevelError, fmt.Sprintf("Generate schema error: %d", err))
+		logTracker.Log(LogLevelError, fmt.Sprintf("generate schema error: %v", err))
 		return prop
 	}
 
 	b, err := json.Marshal(s)
 	if err != nil {
-		logTracker.Log(LogLevelError, fmt.Sprintf("Json marshal schema error: %d", err))
+		logTracker.Log(LogLevelError, fmt.Sprintf("json marshal schema error: %v", err))
 		return prop
 	}
 
 	err = json.Unmarshal(b, &prop)
 	if err != nil {
-		logTracker.Log(LogLevelError, fmt.Sprintf("Unmarshal schema to PropSpec error: %d", err))
+		logTracker.Log(LogLevelError, fmt.Sprintf("unmarshal schema to propspec error: %v", err))
 		return prop
 	}
 

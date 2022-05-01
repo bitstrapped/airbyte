@@ -1,4 +1,5 @@
 //The following schema package has been edited to correspond with the schematic syntax used by airbyte.
+//Edits are marked with #Edit
 //For unedited software see https://github.com/danielgtaylor/huma v1.5.4
 //Following copyright notice applies to the 'schema' file.
 
@@ -133,7 +134,7 @@ func getTagValue(s *Schema, t reflect.Type, value string) (interface{}, error) {
 
 // Schema represents a JSON Schema which can be generated from Go structs
 type Schema struct {
-	Type                 []string           `json:"type,omitempty"`
+	Type                 []string           `json:"type,omitempty"` // #Edit from: Type string `json:"type,omitempty"`
 	Description          string             `json:"description,omitempty"`
 	Items                *Schema            `json:"items,omitempty"`
 	Properties           map[string]*Schema `json:"properties,omitempty"`
@@ -267,7 +268,7 @@ func GenerateFromField(f reflect.StructField, mode Mode) (string, bool, *Schema,
 
 		enumType := f.Type
 		enumSchema := s
-		if s.Type[0] == TypeArray {
+		if s.Type[0] == TypeArray { // #Edit from: if s.Type == TypeArray {
 			// Enum values should be the type of the array elements, not the
 			// array itself!
 			enumType = f.Type.Elem()
@@ -460,7 +461,7 @@ func GenerateWithMode(t reflect.Type, mode Mode, schema *Schema) (*Schema, error
 
 	if t == ipType {
 		// Special case: IP address.
-		return &Schema{Type: []string{TypeString, "null"}, Format: "ipv4"}, nil
+		return &Schema{Type: []string{TypeString, "null"}, Format: "ipv4"}, nil // #Edit from: return &Schema{Type: TypeString, Format: "ipv4"}, nil
 	}
 
 	switch t.Kind() {
@@ -468,14 +469,14 @@ func GenerateWithMode(t reflect.Type, mode Mode, schema *Schema) (*Schema, error
 		// Handle special cases.
 		switch t {
 		case timeType:
-			return &Schema{Type: []string{TypeString, "null"}, Format: "date-time"}, nil
+			return &Schema{Type: []string{TypeString, "null"}, Format: "date-time"}, nil // #Edit from: return &Schema{Type: TypeString, Format: "date-time"}, nil
 		case uriType:
-			return &Schema{Type: []string{TypeString, "null"}, Format: "uri"}, nil
+			return &Schema{Type: []string{TypeString, "null"}, Format: "uri"}, nil // #Edit from: return &Schema{Type: TypeString, Format: "uri"}, nil
 		}
 
 		properties := make(map[string]*Schema)
 		required := make([]string, 0)
-		schema.Type = []string{TypeObject, "null"}
+		schema.Type = []string{TypeObject, "null"} // #Edit from: schema.Type = TypeObject
 		schema.AdditionalProperties = false
 
 		for _, f := range getFields(t) {
@@ -518,10 +519,10 @@ func GenerateWithMode(t reflect.Type, mode Mode, schema *Schema) (*Schema, error
 			schema.Required = required
 		}
 
-		return schema, nil
+		return schema, nil // #Edit new line
 
 	case reflect.Map:
-		schema.Type = []string{TypeObject, "null"}
+		schema.Type = []string{TypeObject, "null"} // #Edit from: schema.Type = TypeObject
 		s, err := GenerateWithMode(t.Elem(), mode, nil)
 		if err != nil {
 			return nil, err
@@ -530,9 +531,9 @@ func GenerateWithMode(t reflect.Type, mode Mode, schema *Schema) (*Schema, error
 	case reflect.Slice, reflect.Array:
 		if t.Elem().Kind() == reflect.Uint8 {
 			// Special case: `[]byte` should be a Base-64 string.
-			schema.Type = []string{TypeString, "null"}
+			schema.Type = []string{TypeString, "null"} // #Edit from: schema.Type = TypeString
 		} else {
-			schema.Type = []string{TypeArray, "null"}
+			schema.Type = []string{TypeArray, "null"} // #Edit from: schema.Type = TypeArray
 			s, err := GenerateWithMode(t.Elem(), mode, nil)
 			if err != nil {
 				return nil, err
@@ -540,30 +541,30 @@ func GenerateWithMode(t reflect.Type, mode Mode, schema *Schema) (*Schema, error
 			schema.Items = s
 		}
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32:
-		schema.Type = []string{TypeInteger, "null"}
+		schema.Type = []string{TypeInteger, "null"} // #Edit from: schema.Type = TypeInteger
 		schema.Format = "int32"
 	case reflect.Int64:
-		schema.Type = []string{TypeInteger, ""}
+		schema.Type = []string{TypeInteger, ""} // #Edit from: schema.Type = TypeInteger
 		schema.Format = "int64"
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32:
 		// Unsigned integers can't be negative.
-		schema.Type = []string{TypeInteger, "null"}
+		schema.Type = []string{TypeInteger, "null"} // #Edit from: schema.Type = TypeInteger
 		schema.Format = "int32"
 		schema.Minimum = F(0.0)
 	case reflect.Uint64:
-		schema.Type = []string{TypeInteger, "null"}
+		schema.Type = []string{TypeInteger, "null"} // #Edit from: schema.Type = TypeInteger
 		schema.Format = "int64"
 		schema.Minimum = F(0.0)
 	case reflect.Float32:
-		schema.Type = []string{TypeNumber, "null"}
+		schema.Type = []string{TypeNumber, "null"} // #Edit from: schema.Type = TypeInteger
 		schema.Format = "float"
 	case reflect.Float64:
-		schema.Type = []string{TypeNumber, "null"}
+		schema.Type = []string{TypeNumber, "null"} // #Edit from: schema.Type = TypeInteger
 		schema.Format = "double"
 	case reflect.Bool:
-		schema.Type = []string{TypeBoolean, "null"}
+		schema.Type = []string{TypeBoolean, "null"} // #Edit from: schema.Type = TypeInteger
 	case reflect.String:
-		schema.Type = []string{TypeString, "null"}
+		schema.Type = []string{TypeString, "null"} // #Edit from: schema.Type = TypeInteger
 	case reflect.Ptr:
 		return GenerateWithMode(t.Elem(), mode, schema)
 	case reflect.Interface:

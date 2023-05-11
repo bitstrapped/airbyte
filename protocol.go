@@ -38,7 +38,7 @@ type message struct {
 	*logMessage             `json:"log,omitempty"`
 	*ConnectorSpecification `json:"spec,omitempty"`
 	*connectionStatus       `json:"connectionStatus,omitempty"`
-	*Catalog                `json:"catalog,omitempty"`
+	Catalog                 json.RawMessage `json:"catalog,omitempty"`
 }
 
 // message MarshalJSON is a custom marshaller which validates the messageType with the sub-struct

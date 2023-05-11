@@ -3,8 +3,9 @@ package airbyte
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/bitstrapped/airbyte/schema"
 	"reflect"
+
+	"github.com/kollalabs/airbyte-go/schema"
 )
 
 // Infer schema translates golang structs to JSONSchema format

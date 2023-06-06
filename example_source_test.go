@@ -53,9 +53,7 @@ func (h HTTPSource) Spec(logTracker airbyte.LogTracker) (*airbyte.ConnectorSpeci
 						Description: "api key to access http source, valid uuid",
 						Examples:    []string{"xxxx-xxxx-xxxx-xxxx"},
 						PropertyType: airbyte.PropertyType{
-							Type: []airbyte.PropType{
-								airbyte.String,
-							},
+							Type: airbyte.String,
 						},
 					},
 				},

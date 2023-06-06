@@ -7,9 +7,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"testing"
 	"time"
 
-	"github.com/bitstrapped/airbyte"
+	airbyte "github.com/kollalabs/airbyte-go"
 )
 
 type HTTPSource struct {
@@ -83,47 +84,14 @@ func (h HTTPSource) Check(srcCfgPath string, logTracker airbyte.LogTracker) erro
 	return nil
 }
 
-func (h HTTPSource) Discover(srcCfgPath string, logTracker airbyte.LogTracker) (*airbyte.Catalog, error) {
+func (h HTTPSource) Discover(srcCfgPath string, logTracker airbyte.LogTracker) (json.RawMessage, error) {
 	var srcCfg HTTPConfig
 	err := airbyte.UnmarshalFromPath(srcCfgPath, &srcCfg)
 	if err != nil {
 		return nil, err
 	}
 
-	return &airbyte.Catalog{Streams: []airbyte.Stream{{
-		Name: "users",
-		JSONSchema: airbyte.Properties{
-			Properties: map[airbyte.PropertyName]airbyte.PropertySpec{
-				"userid": {
-					PropertyType: airbyte.PropertyType{
-						Type:        []airbyte.PropType{airbyte.Integer, airbyte.Null},
-						AirbyteType: airbyte.BigInteger},
-					Description: "user ID - see the big int",
-				},
-				"name": {
-					PropertyType: airbyte.PropertyType{
-						Type: []airbyte.PropType{airbyte.String, airbyte.Null},
-					},
-					Description: "user name",
-				},
-			},
-		},
-		SupportedSyncModes: []airbyte.SyncMode{
-			airbyte.SyncModeFullRefresh,
-		},
-		SourceDefinedCursor: false,
-		Namespace:           "bitstrapped",
-	},
-		{
-			Name:       "payments",
-			JSONSchema: airbyte.InferSchemaFromStruct(Payment{}, logTracker),
-			SupportedSyncModes: []airbyte.SyncMode{
-				airbyte.SyncModeFullRefresh,
-			},
-			SourceDefinedCursor: false,
-			Namespace:           "bitstrapped",
-		},
-	}}, nil
+	return json.RawMessage(Catalog), nil
 }
 
 type User struct {
@@ -200,7 +168,7 @@ func (h HTTPSource) Read(sourceCfgPath string, prevStatePath string, configuredC
 	return nil
 }
 
-func Example() {
+func TestExample(t *testing.T) {
 	hsrc := NewHTTPSource("https://api.bitstrapped.com")
 	runner := airbyte.NewSourceRunner(hsrc, os.Stdout)
 	err := runner.Start()
@@ -208,3 +176,192 @@ func Example() {
 		log.Fatal(err)
 	}
 }
+
+const Catalog = `{
+    "streams": [
+      {
+        "name": "Company",
+        "json_schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "title": "CompanyRet",
+          "type": "object",
+          "properties": {
+            "IsSampleCompany": {"type": "boolean"},
+            "CompanyName": {"type": "string"},
+            "Address": {
+              "type": "object",
+              "properties": {
+                "Street": {"type": "string"},
+                "CityStateZIP": {"type": "string"},
+                "Misc1": {"type": "string"},
+                "Misc2": {"type": "string"},
+                "Misc3": {"type": "string"}
+              }
+            },
+            "QuickBooksCompanyFile": {"type": "string"},
+            "StoreNumber": {"type": "integer"},
+            "StoreCode": {"type": "integer"},
+            "Store": {
+              "type": "object",
+              "properties": {
+                "StoreNumber": {"type": "integer"},
+                "StoreCode": {"type": "integer"},
+                "StoreName": {"type": "string"},
+                "Address": {
+                  "type": "object",
+                  "properties": {
+                    "Street": {"type": "string"},
+                    "CityStateZIP": {"type": "string"},
+                    "Misc1": {"type": "string"},
+                    "Misc2": {"type": "string"},
+                    "Misc3": {"type": "string"}
+                  }
+                }
+              }
+            },
+            "PriceLevel1": {
+              "type": "object",
+              "properties": {
+                "Name": {"type": "string"},
+                "Markdown": {"type": "number"}
+              }
+            },
+            "PriceLevel2": {
+              "type": "object",
+              "properties": {
+                "Name": {"type": "string"},
+                "Markdown": {"type": "number"}
+              }
+            },
+            "PriceLevel3": {
+              "type": "object",
+              "properties": {
+                "Name": {"type": "string"},
+                "Markdown": {"type": "number"}
+              }
+            },
+            "PriceLevel4": {
+              "type": "object",
+              "properties": {
+                "Name": {"type": "string"},
+                "Markdown": {"type": "number"}
+              }
+            },
+            "PriceLevel5": {
+              "type": "object",
+              "properties": {
+                "Name": {"type": "string"},
+                "Markdown": {"type": "number"}
+             }
+          },
+          "PurchaseOrderStatusInfo": {
+            "type": "object",
+            "properties": {
+              "OrderStatusData": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "StatusType": {"type": "string", "enum": ["Open", "Closed", "Custom"]},
+                    "StatusDescription": {"type": "string"}
+                  }
+                }
+              }
+            }
+          },
+          "LayawayStatusInfo": {
+            "type": "object",
+            "properties": {
+              "OrderStatusData": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "StatusType": {"type": "string", "enum": ["Open", "Closed", "Custom"]},
+                    "StatusDescription": {"type": "string"}
+                  }
+                }
+              }
+            }
+          },
+          "SalesOrderStatusInfo": {
+            "type": "object",
+            "properties": {
+              "OrderStatusData": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "StatusType": {"type": "string", "enum": ["Open", "Closed", "Custom"]},
+                    "StatusDescription": {"type": "string"}
+                  }
+                }
+              }
+            }
+          },
+          "WorkOrderStatusInfo": {
+            "type": "object",
+            "properties": {
+              "OrderStatusData": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "StatusType": {"type": "string", "enum": ["Open", "Closed", "Custom"]},
+                    "StatusDescription": {"type": "string"}
+                  }
+                }
+              }
+            }
+          },
+          "IsUsingUnitsOfMeasure": {"type": "boolean"},
+          "IsUsingIntegratedShipping": {"type": "boolean"},
+          "ShippingProvider": {"type": "string"},
+          "TaxRecord": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "TaxCategoryListID": {"type": "string"},
+                "TaxCategory": {"type": "string"},
+                "POSTaxCodeListID": {"type": "string"},
+                "POSTaxCode": {"type": "string"},
+                "TaxPercent": {"type": "number"},
+                "TaxRate": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "TaxPercent": {"type": "number"},
+                      "TaxRateName": {"type": "string"},
+                      "TaxAgency": {"type": "string"},
+                      "TaxLowRange": {"type": "number"},
+                      "TaxHighRange": {"type": "number"},
+                      "IsTaxAppliedOnlyWithinRange": {"type": "boolean"},
+                      "QBTaxGroup": {"type": "string"}
+                    }
+                  }
+                },
+                "QBTaxGroup": {"type": "string"},
+                "QBTaxCode": {"type": "string"}
+              }
+            }
+          },
+          "DataExtRet": {
+            "type": "object",
+            "properties": {
+              "OwnerID": {"type": "string"},
+              "DataExtName": {"type": "string"},
+              "DataExtType": {"type": "string", "enum": ["INTTYPE", "AMTTYPE", "PRICETYPE", "QUANTYPE", "PERCENTTYPE", "DATETIMETYPE", "STR255TYPE", "STR1024TYPE"]},
+              "DataExtValue": {"type": "string"}
+            }
+          }
+        }
+      },
+        "supported_sync_modes": [
+          "full_refresh"
+        ],
+        "namespace": "kolla"
+      }
+    ]
+  }`

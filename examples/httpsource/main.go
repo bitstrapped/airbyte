@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/bitstrapped/airbyte"
-	"github.com/bitstrapped/airbyte/examples/httpsource/apisource"
+	airbyte "github.com/kollalabs/airbyte-go"
+	"github.com/kollalabs/airbyte-go/examples/httpsource/apisource"
 )
 
 func main() {

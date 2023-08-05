@@ -206,12 +206,13 @@ type ConnectionSpecification struct {
 type PropType string
 
 const (
-	String  PropType = "string"
-	Number  PropType = "number"
-	Integer PropType = "integer"
-	Object  PropType = "object"
 	Array   PropType = "array"
+	Bool    PropType = "boolean"
+	Integer PropType = "integer"
 	Null    PropType = "null"
+	Number  PropType = "number"
+	Object  PropType = "object"
+	String  PropType = "string"
 )
 
 // AirbytePropType is used to define airbyte specific property types. See more here: https://docs.airbyte.com/understanding-airbyte/supported-data-types

@@ -31,14 +31,16 @@ func NewSourceRunner(src Source, w io.Writer) SourceRunner {
 
 // Start starts your source
 // Example usage would look like this in your main.go
-//  func() main {
-// 	src := newCoolSource()
-// 	runner := airbyte.NewSourceRunner(src)
-// 	err := runner.Start()
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	 }
-//  }
+//
+//	 func() main {
+//		src := newCoolSource()
+//		runner := airbyte.NewSourceRunner(src)
+//		err := runner.Start()
+//		if err != nil {
+//			log.Fatal(err)
+//		 }
+//	 }
+//
 // Yes, it really is that easy!
 func (sr SourceRunner) Start() error {
 	switch cmd(os.Args[1]) {
@@ -47,7 +49,7 @@ func (sr SourceRunner) Start() error {
 			Log: sr.msgTracker.Log,
 		})
 		if err != nil {
-			sr.msgTracker.Log(LogLevelError, "failed"+err.Error())
+			sr.msgTracker.Log(LogLevelError, "failed: "+err.Error())
 			return err
 		}
 		return write(sr.w, &message{
@@ -58,6 +60,7 @@ func (sr SourceRunner) Start() error {
 	case cmdCheck:
 		inP, err := getSourceConfigPath()
 		if err != nil {
+			sr.msgTracker.Log(LogLevelError, "failed: "+err.Error())
 			return err
 		}
 		err = sr.src.Check(inP, LogTracker{
@@ -66,7 +69,8 @@ func (sr SourceRunner) Start() error {
 		if err != nil {
 			log.Println(err)
 			return write(sr.w, &message{
-				Type: msgTypeConnectionStat,
+				Type:       msgTypeConnectionStat,
+				logMessage: &logMessage{Level: LogLevelError, Message: err.Error()},
 				connectionStatus: &connectionStatus{
 					Status: checkStatusFailed,
 				},
@@ -83,12 +87,14 @@ func (sr SourceRunner) Start() error {
 	case cmdDiscover:
 		inP, err := getSourceConfigPath()
 		if err != nil {
+			sr.msgTracker.Log(LogLevelError, "failed: "+err.Error())
 			return err
 		}
 		ct, err := sr.src.Discover(inP, LogTracker{
 			Log: sr.msgTracker.Log},
 		)
 		if err != nil {
+			sr.msgTracker.Log(LogLevelError, "failed: "+err.Error())
 			return err
 		}
 		return write(sr.w, &message{
@@ -100,27 +106,31 @@ func (sr SourceRunner) Start() error {
 		var incat ConfiguredCatalog
 		p, err := getCatalogPath()
 		if err != nil {
+			sr.msgTracker.Log(LogLevelError, "failed: "+err.Error())
 			return err
 		}
 
 		err = UnmarshalFromPath(p, &incat)
 		if err != nil {
+			sr.msgTracker.Log(LogLevelError, "failed: "+err.Error())
 			return err
 		}
 
 		srp, err := getSourceConfigPath()
 		if err != nil {
+			sr.msgTracker.Log(LogLevelError, "failed: "+err.Error())
 			return err
 		}
 
 		stp, err := getStatePath()
 		if err != nil {
+			sr.msgTracker.Log(LogLevelError, "failed: "+err.Error())
 			return err
 		}
 
 		err = sr.src.Read(srp, stp, &incat, sr.msgTracker)
 		if err != nil {
-			log.Println("failed")
+			sr.msgTracker.Log(LogLevelError, "failed: "+err.Error())
 			return err
 		}
 

@@ -2,7 +2,6 @@ package airbyte
 
 import (
 	"io"
-	"log"
 	"os"
 )
 
@@ -67,10 +66,9 @@ func (sr SourceRunner) Start() error {
 			Log: sr.msgTracker.Log,
 		})
 		if err != nil {
-			log.Println(err)
+			sr.msgTracker.Log(LogLevelError, "failed: "+err.Error())
 			return write(sr.w, &message{
-				Type:       msgTypeConnectionStat,
-				logMessage: &logMessage{Level: LogLevelError, Message: err.Error()},
+				Type: msgTypeConnectionStat,
 				connectionStatus: &connectionStatus{
 					Status: checkStatusFailed,
 				},

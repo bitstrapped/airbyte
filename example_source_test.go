@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"testing"
-	"time"
 
 	airbyte "github.com/kollalabs/airbyte-go"
 )
@@ -160,9 +159,6 @@ func (h HTTPSource) Read(sourceCfgPath string, prevStatePath string, configuredC
 		}
 	}
 
-	tracker.State(&LastSyncTime{
-		Timestamp: time.Now().UnixMilli(),
-	})
 	return nil
 }
 

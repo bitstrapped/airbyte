@@ -89,7 +89,21 @@ type record struct {
 
 // state is used to store data between syncs - useful for incremental syncs and state storage
 type state struct {
-	Data interface{} `json:"data"`
+	StateType string `json:"state_type"`
+	// only one of stream, global, or data may be set
+	Stream *StreamState `json:"stream,omitempty"`
+	//	Global *GlobalState `json:"global,omitempty"`
+	Data interface{} `json:"data,omitempty"` // deprecated, use stream or global state instead
+}
+
+type StreamDescriptor struct {
+	Name      string `json:"name"`
+	Namespace string `json:"namespace"`
+}
+
+type StreamState struct {
+	StreamDescriptor StreamDescriptor `json:"stream_descriptor"`
+	StreamState      json.RawMessage  `json:"stream_state"`
 }
 
 // LogLevel defines the log levels that can be emitted with airbyte logs
@@ -251,7 +265,7 @@ type PropertySpec struct {
 type LogWriter func(level LogLevel, s string) error
 
 // StateWriter is exported for documentation purposes - only use this through MessageTracker
-type StateWriter func(v interface{}) error
+type StateWriter func(d StreamDescriptor, v interface{}) error
 
 // RecordWriter is exported for documentation purposes - only use this through MessageTracker
 type RecordWriter func(v interface{}, streamName string, namespace string) error
@@ -268,14 +282,35 @@ func newLogWriter(w io.Writer) LogWriter {
 	}
 
 }
+
 func newStateWriter(w io.Writer) StateWriter {
-	return func(s interface{}) error {
-		return write(w, &message{
+	return func(d StreamDescriptor, s interface{}) error {
+		// if the data we have isn't a json.RawMessage, we should marshal it to a json.RawMessage
+		var ss json.RawMessage
+		if _, ok := s.(json.RawMessage); !ok {
+			b, err := json.Marshal(s)
+			if err != nil {
+				return err
+			}
+			ss = json.RawMessage(b)
+		} else {
+			ss = s.(json.RawMessage)
+		}
+
+		err := write(w, &message{
 			Type: msgTypeState,
 			state: &state{
-				Data: s,
+				StateType: "STREAM",
+				Stream: &StreamState{
+					StreamDescriptor: d,
+					StreamState:      ss,
+				},
 			},
 		})
+		if err != nil {
+			return err
+		}
+		return nil
 	}
 }
 
